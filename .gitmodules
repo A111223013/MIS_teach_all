@@ -1,0 +1,12 @@
+[submodule "yolo"]
+	path = yolo
+	url = https://github.com/A111223013/mis_teach_yolo.git
+[submodule "ocr"]
+	path = ocr
+	url = https://github.com/A111223013/mis_teach_ocr.git
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/A111223013/mis_teach_frontend.git
+[submodule "backend"]
+	path = backend
+	url = https://github.com/A111223013/mis_teach_backend.git
