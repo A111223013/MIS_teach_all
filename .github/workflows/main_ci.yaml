@@ -1,0 +1,37 @@
+name: Main Project Submodule Sync Check # 工作流程名稱，強調同步檢查
+
+on:
+  push:
+    branches:
+      - main # 只在 'main' 分支有新提交時觸發
+      # - master # 如果你的主分支是 master，也加上
+    paths: # 這是重要的過濾器，只在以下路徑有變更時才觸發此工作流程
+      - 'frontend/**' # 當 frontend 子模組的引用被更新時
+      - 'backend/**'  # 當 backend 子模組的引用被更新時
+      - 'ocr/**'      # 當 ocr 子模組的引用被更新時
+      - 'yolo/**'     # 當 yolo 子模組的引用被更新時
+      - '.github/workflows/**' # 當 CI/CD 工作流程文件本身有變更時
+
+jobs:
+  check_submodule_sync: # 作業名稱，強調同步檢查
+    runs-on: ubuntu-latest # 在 Ubuntu 環境中運行
+
+    steps:
+      - name: Checkout Parent Repo with Submodules # 步驟名稱
+        uses: actions/checkout@v4 # 使用 checkout action
+        with:
+          submodules: recursive # 【關鍵】確保所有子模組都被遞歸拉取到最新版本
+          # 如果你的任何子模組是私有的，你需要在父倉庫的 Secrets 中添加一個 PAT
+          # 並在這裡使用它：
+          token: ${{ secrets.GH_TOKEN_FOR_SUBMODULES }} # 安全地引用 PAT
+
+      - name: Verify Submodule Checkout # 新增步驟：驗證子模組是否成功拉取
+        run: |
+          echo "Successfully checked out parent repository and its submodules."
+          echo "Current directory contents:"
+          ls -la # 列出當前目錄內容，確認子模組資料夾存在
+          echo "Frontend submodule path:"
+          ls -la frontend/ # 檢查 frontend 目錄內容
+          echo "Backend submodule path:"
+          ls -la backend/ # 檢查 backend 目錄內容
+          # 你可以為其他子模組添加類似的檢查，例如 ocr/ 和 yolo/
