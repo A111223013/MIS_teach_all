@@ -84,7 +84,7 @@ class RAGMainSystem:
                 if choice == '1':
                     self._handle_pdf_processing()
                 elif choice == '2':
-                    self._handle_ai_qa()
+                    self._handle_unified_tutoring()
                 elif choice == '3':
                     self._handle_system_settings()
                 elif choice == '4':
@@ -103,13 +103,42 @@ class RAGMainSystem:
             logger.error(f"❌ 系統運行錯誤: {e}")
             print(f"❌ 系統發生錯誤: {e}")
 
+    def _handle_unified_tutoring(self):
+        """處理多AI智能教學"""
+        try:
+            from multi_ai_learning import MultiAILearningSystem
+            print("\n🎓 啟動多AI智能學習系統...")
+            print("🤖 支援 Llama (本地) + Gemini (API)")
+            print("🎯 真正老師風格，自然對話")
+            print("🔄 可隨時切換AI模型")
+
+            learning_system = MultiAILearningSystem()
+            learning_system.run()
+
+        except ImportError as e:
+            print(f"❌ 多AI教學系統模組載入失敗: {e}")
+            print("💡 請確認 multi_ai_tutor.py 和 multi_ai_learning.py 檔案存在")
+            print("💡 請安裝 google-generativeai: pip install google-generativeai")
+        except Exception as e:
+            logger.error(f"❌ 多AI教學系統錯誤: {e}")
+            print(f"❌ 多AI教學系統發生錯誤: {e}")
+            print("💡 請檢查:")
+            print("  1. Ollama是否運行: ollama serve (如果使用Llama)")
+            print("  2. 網路連接是否正常 (如果使用Gemini)")
+            print("  3. 向量資料庫是否建立")
+
+    def _handle_exit(self):
+        """處理退出"""
+        print("\n👋 感謝使用RAG智能教學系統！")
+        print("🎓 希望您學習愉快！")
+
     def _show_main_menu(self):
         """顯示主選單"""
         menu_text = f"""
 🏠 主選單
 {'='*50}
 1. 📚 PDF教材處理 (建立知識庫)
-2. 🤖 智能問答系統
+2. 🎓 多AI智能學習 (Llama + Gemini)
 3. ⚙️  系統設定
 4. 📊 系統狀態
 5. 🚪 退出系統

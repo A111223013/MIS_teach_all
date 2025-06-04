@@ -30,8 +30,45 @@ for directory in [DATA_DIR, PDF_DIR, KNOWLEDGE_DB_DIR, OUTPUT_DIR]:
 # =============================================================================
 
 # 本地AI模型設定 (Ollama)
-LOCAL_AI_MODEL = "llama3.1"
+LOCAL_AI_MODEL = "llama3.1:latest"
 LOCAL_AI_BASE_URL = "http://localhost:11434"
+
+# AI配置字典（用於智能教學系統）
+AI_CONFIG = {
+    "model": LOCAL_AI_MODEL,
+    "base_url": LOCAL_AI_BASE_URL,
+    "timeout": 30,
+    "temperature": 0.3,
+    "max_tokens": 500
+}
+
+# Gemini API配置
+GEMINI_CONFIG = {
+    "api_key": "AIzaSyCwwVlv5VeCkyI1RL9mKvWSZHUKn6WlpIU",
+    "model": "gemini-1.5-flash",
+    "timeout": 30,
+    "temperature": 0.3,
+    "max_tokens": 500
+}
+
+# 可用的AI模型選項
+AVAILABLE_AI_MODELS = {
+    "llama": {
+        "name": "Llama (本地)",
+        "description": "本地運行的Llama模型，隱私性好，無需網路",
+        "type": "local",
+        "config": AI_CONFIG
+    },
+    "gemini": {
+        "name": "Gemini (API)",
+        "description": "Google的Gemini模型，功能強大，需要網路",
+        "type": "api",
+        "config": GEMINI_CONFIG
+    }
+}
+
+# 預設AI模型
+DEFAULT_AI_MODEL = "llama"
 
 # 向量化模型設定 - GPU優化
 EMBEDDING_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"

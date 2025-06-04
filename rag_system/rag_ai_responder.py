@@ -100,25 +100,151 @@ class AIResponder:
             Dict[str, str]: 提示詞模板字典
         """
         templates = {
-            'chinese': """你是一位專業的資訊管理課程教學助理。請根據提供的教材內容，用繁體中文回答學生問題。
+            'chinese': {
+                'basic_definition': """你是一位專業的教學助理。請用繁體中文簡潔明確地回答學生的基礎定義問題。
 
-【教材內容參考】
+【教材內容】
 {context}
 
 【學生問題】
 {question}
 
-請根據上述教材內容，提供詳細且準確的回答。如果教材中沒有相關資訊，請誠實說明並提供一般性的解釋。""",
+請提供：
+1. 清楚的定義
+2. 核心特徵（2-3點）
+3. 一個簡單的例子
 
-            'english': """You are a professional teaching assistant for Information Management courses. Please answer student questions in English based on the provided textbook content.
+回答要直接、準確，不需要過度解釋。""",
 
-【Textbook Content Reference】
+                'guided_teaching': """你是一位專業的教學助理，擅長引導式教學。請用繁體中文回答學生問題，並採用引導式教學方法。
+
+【教材內容】
+{context}
+
+【學生問題】
+{question}
+
+【問題類型】{question_type}
+【學習層次】{learning_level}
+【複雜度】{complexity}
+
+請按照以下引導式教學結構回答：
+
+🎯 **核心概念**
+先建立基礎理解
+
+🔍 **深入探討**
+逐步引導學生思考關鍵問題
+
+💡 **實際應用**
+連結理論與實務
+
+🤔 **思考問題**
+提出2-3個引導性問題，幫助學生深化理解
+
+📚 **延伸學習**
+建議相關的學習方向
+
+回答要循序漸進，引導學生主動思考，而不是直接給答案。""",
+
+                'problem_solving': """你是一位專業的教學助理，擅長問題解決指導。請用繁體中文幫助學生解決問題。
+
+【教材內容】
+{context}
+
+【學生問題】
+{question}
+
+請採用問題解決導向的教學方式：
+
+🎯 **問題分析**
+幫助學生理解問題的本質
+
+🔧 **解決策略**
+提供系統性的解決方法
+
+⚡ **實作步驟**
+具體的操作指引
+
+🚨 **常見陷阱**
+提醒可能遇到的問題
+
+✅ **驗證方法**
+如何確認解決方案的正確性"""
+            },
+
+            'english': {
+                'basic_definition': """You are a professional teaching assistant. Please provide a clear and concise answer to the student's basic definition question in English.
+
+【Textbook Content】
 {context}
 
 【Student Question】
 {question}
 
-Please provide a detailed and accurate answer based on the textbook content above. If there is no relevant information in the textbook, please state this honestly and provide a general explanation."""
+Please provide:
+1. Clear definition
+2. Core characteristics (2-3 points)
+3. A simple example
+
+Keep the answer direct and accurate without over-explanation.""",
+
+                'guided_teaching': """You are a professional teaching assistant skilled in guided instruction. Please answer the student's question in English using guided teaching methods.
+
+【Textbook Content】
+{context}
+
+【Student Question】
+{question}
+
+【Question Type】{question_type}
+【Learning Level】{learning_level}
+【Complexity】{complexity}
+
+Please structure your response using guided teaching:
+
+🎯 **Core Concept**
+Establish foundational understanding
+
+🔍 **Deep Exploration**
+Guide students to think about key questions
+
+💡 **Practical Application**
+Connect theory with practice
+
+🤔 **Thinking Questions**
+Pose 2-3 guiding questions to deepen understanding
+
+📚 **Extended Learning**
+Suggest related learning directions
+
+Guide students to think actively rather than giving direct answers.""",
+
+                'problem_solving': """You are a professional teaching assistant skilled in problem-solving guidance. Please help the student solve problems in English.
+
+【Textbook Content】
+{context}
+
+【Student Question】
+{question}
+
+Please use problem-solving oriented teaching:
+
+🎯 **Problem Analysis**
+Help students understand the nature of the problem
+
+🔧 **Solution Strategy**
+Provide systematic solution methods
+
+⚡ **Implementation Steps**
+Specific operational guidance
+
+🚨 **Common Pitfalls**
+Alert to potential issues
+
+✅ **Verification Methods**
+How to confirm solution correctness"""
+            }
         }
 
         return templates
@@ -153,7 +279,7 @@ Please provide a detailed and accurate answer based on the textbook content abov
 
     def analyze_question(self, question: str) -> Dict[str, Any]:
         """
-        分析問題並提取關鍵資訊
+        使用AI智能分析問題
 
         Args:
             question: 學生問題
@@ -161,44 +287,149 @@ Please provide a detailed and accurate answer based on the textbook content abov
         Returns:
             Dict[str, Any]: 問題分析結果
         """
-        # 問題類型分類
-        question_types = {
-            "定義類": ["什麼是", "定義", "definition", "what is", "概念", "meaning"],
-            "功能類": ["功能", "作用", "用途", "function", "purpose", "how does", "作用是"],
-            "比較類": ["區別", "差異", "比較", "difference", "compare", "vs", "versus", "對比"],
-            "原理類": ["原理", "機制", "如何", "怎樣", "principle", "mechanism", "how", "工作原理"],
-            "應用類": ["應用", "實例", "例子", "application", "example", "use case", "案例"],
-            "步驟類": ["步驟", "流程", "過程", "steps", "process", "procedure", "如何做"]
-        }
+        try:
+            # 使用AI進行問題分析
+            analysis_prompt = self._create_analysis_prompt(question)
 
-        detected_type = "一般問題"
-        for q_type, keywords in question_types.items():
-            if any(keyword.lower() in question.lower() for keyword in keywords):
-                detected_type = q_type
-                break
+            response = requests.post(
+                f"{self.ai_base_url}/api/generate",
+                json={
+                    "model": self.ai_model,
+                    "prompt": analysis_prompt,
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.1,  # 低溫度確保一致性
+                        "num_predict": 500
+                    }
+                },
+                timeout=30
+            )
 
-        # 提取關鍵概念
-        common_concepts = [
-            "作業系統", "operating system", "process", "進程", "thread", "線程",
-            "memory", "記憶體", "virtual memory", "虛擬記憶體", "file system", "文件系統",
-            "scheduling", "調度", "deadlock", "死鎖", "synchronization", "同步",
-            "cpu", "kernel", "核心", "interrupt", "中斷", "system call", "系統調用",
-            "database", "資料庫", "network", "網路", "security", "安全", "algorithm", "演算法"
-        ]
+            if response.status_code == 200:
+                ai_response = response.json().get('response', '')
+                return self._parse_ai_analysis(ai_response, question)
+            else:
+                logger.warning("AI分析失敗，使用備用分析")
+                return self._fallback_analysis(question)
 
-        detected_concepts = [concept for concept in common_concepts
-                           if concept.lower() in question.lower()]
+        except Exception as e:
+            logger.warning(f"AI分析出錯: {e}，使用備用分析")
+            return self._fallback_analysis(question)
 
-        # 檢測語言
+    def _create_analysis_prompt(self, question: str) -> str:
+        """
+        創建AI問題分析的prompt
+
+        Args:
+            question: 學生問題
+
+        Returns:
+            str: 分析prompt
+        """
+        if self.language == 'chinese':
+            return f"""你是一位專業的教學分析專家。請分析以下學生問題，並以JSON格式回答：
+
+學生問題：{question}
+
+請分析並回答以下內容（必須是有效的JSON格式）：
+{{
+    "question_type": "問題類型（如：基礎定義、深度理解、比較分析、原理探討、實際應用、操作步驟、問題解決、評估判斷等）",
+    "complexity": "複雜度（簡單/中等/複雜）",
+    "learning_level": "學習層次（記憶/理解/應用/分析/評估/創造）",
+    "concept_categories": ["相關概念類別（如：作業系統、演算法、資料結構、網路、資料庫等）"],
+    "key_concepts": ["關鍵概念列表"],
+    "needs_guidance": "是否需要引導式教學（true/false）",
+    "teaching_approach": "建議的教學方式（直接回答/引導式教學/問題解決導向）",
+    "question_language": "問題語言（中文/英文）"
+}}
+
+只回答JSON，不要其他文字。"""
+        else:
+            return f"""You are a professional educational analysis expert. Please analyze the following student question and respond in JSON format:
+
+Student Question: {question}
+
+Please analyze and answer the following content (must be valid JSON format):
+{{
+    "question_type": "Question type (e.g., basic definition, deep understanding, comparative analysis, principle exploration, practical application, operational steps, problem solving, evaluation judgment, etc.)",
+    "complexity": "Complexity (simple/medium/complex)",
+    "learning_level": "Learning level (remember/understand/apply/analyze/evaluate/create)",
+    "concept_categories": ["Related concept categories (e.g., operating systems, algorithms, data structures, networks, databases, etc.)"],
+    "key_concepts": ["Key concepts list"],
+    "needs_guidance": "Whether guided teaching is needed (true/false)",
+    "teaching_approach": "Recommended teaching approach (direct answer/guided teaching/problem-solving oriented)",
+    "question_language": "Question language (Chinese/English)"
+}}
+
+Only respond with JSON, no other text."""
+
+    def _parse_ai_analysis(self, ai_response: str, question: str) -> Dict[str, Any]:
+        """
+        解析AI分析結果
+
+        Args:
+            ai_response: AI回應
+            question: 原始問題
+
+        Returns:
+            Dict[str, Any]: 解析後的分析結果
+        """
+        try:
+            import json
+            import re
+
+            # 提取JSON部分
+            json_match = re.search(r'\{.*\}', ai_response, re.DOTALL)
+            if json_match:
+                json_str = json_match.group()
+                analysis = json.loads(json_str)
+
+                # 確保所有必要字段存在
+                return {
+                    "question_type": analysis.get("question_type", "一般問題"),
+                    "complexity": analysis.get("complexity", "中等"),
+                    "learning_level": analysis.get("learning_level", "理解"),
+                    "concept_categories": analysis.get("concept_categories", []),
+                    "key_concepts": analysis.get("key_concepts", []),
+                    "needs_guidance": analysis.get("needs_guidance", True),
+                    "teaching_approach": analysis.get("teaching_approach", "引導式教學"),
+                    "question_language": analysis.get("question_language", "中文" if any('\u4e00' <= c <= '\u9fff' for c in question) else "英文")
+                }
+            else:
+                logger.warning("無法從AI回應中提取JSON")
+                return self._fallback_analysis(question)
+
+        except Exception as e:
+            logger.warning(f"解析AI分析結果失敗: {e}")
+            return self._fallback_analysis(question)
+
+    def _fallback_analysis(self, question: str) -> Dict[str, Any]:
+        """
+        備用分析方法（當AI分析失敗時）
+
+        Args:
+            question: 學生問題
+
+        Returns:
+            Dict[str, Any]: 基本分析結果
+        """
+        # 簡單的語言檢測
         chinese_chars = len(re.findall(r'[\u4e00-\u9fff]', question))
         total_chars = len(question)
         is_chinese = chinese_chars / total_chars > 0.3 if total_chars > 0 else False
 
+        # 基本複雜度判斷
+        complexity = "簡單" if len(question) < 20 else "中等" if len(question) < 50 else "複雜"
+
         return {
-            "question_type": detected_type,
-            "detected_concepts": detected_concepts,
-            "question_language": "中文" if is_chinese else "英文",
-            "complexity": "複雜" if len(question) > 50 else "簡單"
+            "question_type": "一般問題",
+            "complexity": complexity,
+            "learning_level": "理解",
+            "concept_categories": [],
+            "key_concepts": [],
+            "needs_guidance": complexity != "簡單",
+            "teaching_approach": "引導式教學",
+            "question_language": "中文" if is_chinese else "英文"
         }
 
     def search_knowledge(self, question: str, top_k: int = None) -> List[Dict[str, Any]]:
@@ -350,25 +581,38 @@ Please provide a detailed and accurate answer based on the textbook content abov
             "context": context_text if context_text else "未找到相關內容。"
         }
 
-    def generate_ai_response(self, question: str, context: str) -> str:
+    def generate_ai_response(self, question: str, context: str, question_analysis: Dict[str, Any] = None) -> str:
         """
-        使用本地AI模型生成回答
+        使用本地AI模型生成智能回答
 
         Args:
             question: 問題
             context: 上下文
+            question_analysis: 問題分析結果
 
         Returns:
             str: AI生成的回答
         """
         try:
-            template = self.prompt_templates[self.language]
+            # 智能選擇教學模板
+            template_type = self._select_teaching_template(question_analysis or {})
+            template = self.prompt_templates[self.language][template_type]
 
-            # 簡化的prompt格式化，只使用必要的參數
-            prompt = template.format(
-                context=context,
-                question=question
-            )
+            # 根據模板類型格式化prompt
+            if template_type == 'basic_definition':
+                prompt = template.format(
+                    context=context,
+                    question=question
+                )
+            else:
+                # 引導式教學或問題解決模板
+                prompt = template.format(
+                    context=context,
+                    question=question,
+                    question_type=question_analysis.get('question_type', '一般問題'),
+                    learning_level=question_analysis.get('learning_level', '理解'),
+                    complexity=question_analysis.get('complexity', '中等')
+                )
 
             # 調用本地AI模型
             response = requests.post(
@@ -398,6 +642,29 @@ Please provide a detailed and accurate answer based on the textbook content abov
         except Exception as e:
             logger.error(f"❌ 生成AI回答失敗: {e}")
             return "抱歉，生成回答時發生錯誤。"
+
+    def _select_teaching_template(self, question_analysis: Dict[str, Any]) -> str:
+        """
+        基於AI分析結果選擇教學模板
+
+        Args:
+            question_analysis: AI問題分析結果
+
+        Returns:
+            str: 模板類型
+        """
+        teaching_approach = question_analysis.get('teaching_approach', '引導式教學')
+        complexity = question_analysis.get('complexity', '中等')
+        question_type = question_analysis.get('question_type', '一般問題')
+
+        # 直接使用AI建議的教學方式
+        if teaching_approach == '直接回答' or (complexity == '簡單' and '定義' in question_type):
+            return 'basic_definition'
+        elif teaching_approach == '問題解決導向' or '解決' in question_type or '步驟' in question_type:
+            return 'problem_solving'
+        else:
+            # 預設使用引導式教學
+            return 'guided_teaching'
 
     def generate_fallback_response(self, question: str, search_results: List[Dict]) -> str:
         """
@@ -451,10 +718,14 @@ Please provide a detailed and accurate answer based on the textbook content abov
         # 3. 提取結構化資訊
         structured_info = self.extract_structured_info(search_results)
 
-        # 4. 生成詳細回答
+        # 4. 生成詳細回答（智能化）
         try:
             if use_ai and search_results:
-                detailed_answer = self.generate_ai_response(question, structured_info.get('context', ''))
+                detailed_answer = self.generate_ai_response(
+                    question,
+                    structured_info.get('context', ''),
+                    question_analysis
+                )
             else:
                 detailed_answer = self.generate_fallback_response(question, search_results)
         except Exception as e:
@@ -495,59 +766,147 @@ Please provide a detailed and accurate answer based on the textbook content abov
         Returns:
             str: 相關概念字符串
         """
-        concepts = set()
+        # 優先使用AI分析的關鍵概念
+        key_concepts = question_analysis.get('key_concepts', [])
+        concept_categories = question_analysis.get('concept_categories', [])
 
-        for result in search_results[:3]:
-            content = result.get('content', '').lower()
-            metadata = result.get('metadata', {})
-
-            # 從關鍵詞中提取
-            keywords = metadata.get('keywords', '')
-            if keywords:
-                concepts.update([kw.strip().title() for kw in keywords.split(',')[:3]])
-
-            # 從內容中提取常見概念
-            common_terms = [
-                "process", "thread", "memory", "cpu", "kernel", "file system",
-                "scheduling", "deadlock", "synchronization", "virtual memory",
-                "database", "network", "security", "algorithm", "data structure"
-            ]
-
-            for term in common_terms:
-                if term in content:
-                    concepts.add(term.title())
-
-        if concepts:
-            return " | ".join(list(concepts)[:5])
+        if key_concepts:
+            # 直接使用AI識別的關鍵概念
+            return " | ".join(key_concepts[:5])  # 最多5個概念
+        elif concept_categories:
+            # 使用概念類別
+            return " | ".join(concept_categories[:5])
         else:
-            if self.language == 'chinese':
-                return "進程管理 | 記憶體管理 | 文件系統 | 資料結構"
+            # 從搜索結果中提取（備用方法）
+            concepts = set()
+            for result in search_results[:3]:
+                content = result.get('content', '').lower()
+                metadata = result.get('metadata', {})
+
+                # 從關鍵詞中提取
+                keywords = metadata.get('keywords', '')
+                if keywords:
+                    concepts.update([kw.strip().title() for kw in keywords.split(',')[:3]])
+
+                # 從內容中提取常見概念
+                common_terms = [
+                    "process", "thread", "memory", "cpu", "kernel", "file system",
+                    "scheduling", "deadlock", "synchronization", "virtual memory",
+                    "database", "network", "security", "algorithm", "data structure"
+                ]
+
+                for term in common_terms:
+                    if term in content:
+                        concepts.add(term.title())
+
+            if concepts:
+                return " | ".join(list(concepts)[:5])
             else:
-                return "Process Management | Memory Management | File System | Data Structure"
+                if self.language == 'chinese':
+                    return "系統管理 | 資料處理 | 演算法 | 資料結構"
+                else:
+                    return "System Management | Data Processing | Algorithm | Data Structure"
 
     def _generate_study_suggestions(self, question_analysis: Dict) -> str:
         """
-        生成學習建議
+        基於AI分析結果生成智能學習建議
+
+        Args:
+            question_analysis: AI問題分析結果
+
+        Returns:
+            str: 學習建議
+        """
+        try:
+            # 使用AI生成個性化學習建議
+            suggestion_prompt = self._create_suggestion_prompt(question_analysis)
+
+            response = requests.post(
+                f"{self.ai_base_url}/api/generate",
+                json={
+                    "model": self.ai_model,
+                    "prompt": suggestion_prompt,
+                    "stream": False,
+                    "options": {
+                        "temperature": 0.3,
+                        "num_predict": 200
+                    }
+                },
+                timeout=20
+            )
+
+            if response.status_code == 200:
+                ai_suggestion = response.json().get('response', '').strip()
+                return ai_suggestion if ai_suggestion else self._fallback_suggestions(question_analysis)
+            else:
+                return self._fallback_suggestions(question_analysis)
+
+        except Exception as e:
+            logger.warning(f"AI學習建議生成失敗: {e}")
+            return self._fallback_suggestions(question_analysis)
+
+    def _create_suggestion_prompt(self, question_analysis: Dict) -> str:
+        """
+        創建學習建議生成的prompt
 
         Args:
             question_analysis: 問題分析結果
 
         Returns:
-            str: 學習建議
+            str: 建議prompt
         """
-        question_type = question_analysis["question_type"]
+        if self.language == 'chinese':
+            return f"""基於以下問題分析，請提供簡潔的學習建議（不超過50字，使用emoji）：
+
+問題類型：{question_analysis.get('question_type', '一般問題')}
+複雜度：{question_analysis.get('complexity', '中等')}
+學習層次：{question_analysis.get('learning_level', '理解')}
+概念類別：{', '.join(question_analysis.get('concept_categories', []))}
+關鍵概念：{', '.join(question_analysis.get('key_concepts', []))}
+
+請提供針對性的學習建議，格式：emoji + 簡短建議 | emoji + 簡短建議"""
+        else:
+            return f"""Based on the following question analysis, please provide concise study suggestions (no more than 50 words, use emojis):
+
+Question Type: {question_analysis.get('question_type', 'general question')}
+Complexity: {question_analysis.get('complexity', 'medium')}
+Learning Level: {question_analysis.get('learning_level', 'understand')}
+Concept Categories: {', '.join(question_analysis.get('concept_categories', []))}
+Key Concepts: {', '.join(question_analysis.get('key_concepts', []))}
+
+Please provide targeted study suggestions, format: emoji + brief suggestion | emoji + brief suggestion"""
+
+    def _fallback_suggestions(self, question_analysis: Dict) -> str:
+        """
+        備用學習建議生成
+
+        Args:
+            question_analysis: 問題分析結果
+
+        Returns:
+            str: 備用學習建議
+        """
+        complexity = question_analysis.get("complexity", "中等")
+        learning_level = question_analysis.get("learning_level", "理解")
 
         if self.language == 'chinese':
-            suggestions = {
-                "定義類": "建議先理解基本概念，然後學習其在系統中的作用和實現方式。",
-                "功能類": "建議結合實際例子理解功能，並思考為什麼需要這些功能。",
-                "比較類": "建議製作對比表格，列出各自的特點、優缺點和適用場景。",
-                "原理類": "建議畫出流程圖或示意圖，幫助理解工作原理和步驟。",
-                "應用類": "建議尋找實際案例，理解理論如何應用到實際系統中。",
-                "步驟類": "建議按步驟實際操作，加深對流程的理解。"
-            }
-            base_suggestion = suggestions.get(question_type, "建議多閱讀教材相關章節，並結合實例加深理解。")
-            return f"{base_suggestion} 同時建議複習相關的前置知識點，確保理解的連貫性。"
+            base_suggestions = []
+
+            if learning_level == "記憶":
+                base_suggestions.append("📝 重複練習關鍵概念")
+            elif learning_level == "理解":
+                base_suggestions.append("🔍 深入理解概念關聯")
+            elif learning_level == "應用":
+                base_suggestions.append("💻 實際操作練習")
+            elif learning_level == "分析":
+                base_suggestions.append("🔬 比較分析不同方法")
+            else:
+                base_suggestions.append("🎯 理解核心概念")
+
+            if complexity == "複雜":
+                base_suggestions.append("📚 分階段學習")
+
+            return " | ".join(base_suggestions) + " | 🗺️ 複習前置知識"
         else:
             suggestions = {
                 "定義類": "It's recommended to first understand the basic concepts, then learn their roles and implementation in the system.",
