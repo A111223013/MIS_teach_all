@@ -1,0 +1,92 @@
+{
+  "name": "MIS Teaching System Detailed Guide - Fixed",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "game-guide",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const inputData = $input.all()[0].json;\\n\\nconst userInfo = {\\n  user_id: inputData.user_id || 'web_user',\\n  current_page: inputData.current_page || '/',\\n  timestamp: inputData.timestamp || new Date().toISOString()\\n};\\n\\nconst steps = [\\n  {\\n    id: 'system-header',\\n    page: '/dashboard/overview',\\n    target: 'c-header, app-default-header, .header, .guide-header',\\n    title: 'MIS 教學系統主導航',\\n    content: '歡迎來到 MIS 教學系統！這是系統的主導航欄，包含 Logo、用戶資訊和系統設定。',\\n    buttonFunction: '點擊 Logo 返回首頁，右側顯示用戶名稱和登出功能',\\n    blockPurpose: '系統的核心導航工具，提供全站功能訪問和用戶身份管理',\\n    position: 'bottom',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1500\\n  },\\n  {\\n    id: 'header-navigation',\\n    page: '/dashboard/overview',\\n    target: 'c-header-nav, .header-nav, c-nav-item, .guide-nav-menu',\\n    title: '系統功能選單',\\n    content: '這裡是頂部功能選單，包含概覽、學生、智能學習系統等主要功能模組。點擊不同選項可以切換功能。',\\n    buttonFunction: '概覽：主畫面；學生：考古題練習功能、錯題統計功能，智能學習系統：AI 導師和測驗演示，繪圖板：畫圖功能，學習分析：成績統計和學習建議',\\n    blockPurpose: '提供系統各功能模組的快速導航，是主要的功能切換工具',\\n    position: 'bottom',\\n    avatarPosition: 'top-left',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'overview-main-content',\\n    page: '/dashboard/overview',\\n    target: '.dashboard-container, .overview-content, .guide-main-content',\\n    title: '概覽頁面內容區',\\n    content: '這裡是概覽頁面的主要內容區域，顯示學習統計、圖表分析和快速功能入口。',\\n    blockPurpose: '提供學習進度概覽、系統統計和重要通知資訊的集中展示',\\n    position: 'bottom',\\n    avatarPosition: 'bottom-right',\\n    waitForElement: true,\\n    delay: 1000\\n  },\\n  {\\n    id: 'click-student-dropdown',\\n    page: '/dashboard/overview',\\n    target: '.guide-student-dropdown, c-dropdown[variant=\\\"nav-item\\\"] a[cDropdownToggle], .nav-item:contains(\\\"學生\\\") a[cDropdownToggle]',\\n    title: '點擊學生下拉選單',\\n    content: '請點擊頂部選單的「學生」按鈕（藍色框框），這會展開學生功能的下拉選單。',\\n    buttonFunction: '點擊學生按鈕展開下拉選單',\\n    blockPurpose: '展開學生功能選單',\\n    position: 'bottom',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1000\\n  },\\n  {\\n    id: 'select-past-choice',\\n    page: '/dashboard/overview',\\n    target: '.guide-past-choice-option, .dropdown-item[href*=\\\"past-choice\\\"], a[routerLink*=\\\"past-choice\\\"]',\\n    title: '選擇考古題選項',\\n    content: '在展開的下拉選單中，請點擊「選擇考古題」選項進入考古題練習功能。',\\n    buttonFunction: '點擊選擇考古題選項',\\n    blockPurpose: '進入考古題練習功能',\\n    position: 'bottom',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1000\\n  },\\n  {\\n    id: 'exam-filter-form',\\n    page: '/dashboard/students/past-choice',\\n    target: 'form, .row, .form-select, .form-label, .guide-filter-form',\\n    title: '考古題篩選條件',\\n    content: '在這裡設定您想要練習的考古題條件：選擇學校、年度、科目、系所等篩選選項來找到合適的題目。',\\n    buttonFunction: '學校選擇：選擇特定學校的考題；年度選擇：選擇考試年份；科目選擇：選擇考試科目；系所選擇：選擇特定系所',\\n    blockPurpose: '提供多維度的考古題篩選功能，幫助學生找到最適合的練習內容',\\n    position: 'bottom',\\n    avatarPosition: 'top-left',\\n    waitForElement: true,\\n    delay: 1500\\n  },\\n  {\\n    id: 'search-button',\\n    page: '/dashboard/students/past-choice',\\n    target: 'button[type=\\\"submit\\\"], .btn-primary, .guide-search-btn',\\n    title: '搜尋考古題',\\n    content: '設定完篩選條件後，點擊「搜尋」按鈕查看符合條件的題目列表。',\\n    buttonFunction: '搜尋：根據設定的條件查找相關考古題，顯示題目列表供預覽',\\n    blockPurpose: '執行考古題搜尋，提供題目預覽功能',\\n    position: 'left',\\n    avatarPosition: 'bottom-left',\\n    waitForElement: true,\\n    delay: 1000\\n  },\\n  {\\n    id: 'answer-button',\\n    page: '/dashboard/students/past-choice',\\n    target: 'button:not([type=\\\"submit\\\"]), .btn:not(.btn-primary), .guide-answer-btn',\\n    title: '開始作答練習',\\n    content: '如果想直接開始練習，可以點擊「作答題目」按鈕進入答題模式。',\\n    buttonFunction: '作答題目：直接進入答題模式，開始考古題練習',\\n    blockPurpose: '提供直接進入答題模式的快速入口',\\n    position: 'left',\\n    avatarPosition: 'bottom-left',\\n    waitForElement: true,\\n    delay: 1000\\n  },\\n  {\\n    id: 'exam-review-header',\\n    page: '/dashboard/students/past-exam-review',\\n    target: 'h2, .mb-0, .guide-exam-header',\\n    title: '考古題作答頁面',\\n    content: '這裡是考古題作答頁面，顯示考試年度和科目資訊。右上角有提交答案按鈕。',\\n    blockPurpose: '考古題作答的主要介面，提供完整的答題環境',\\n    position: 'bottom',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1500\\n  },\\n  {\\n    id: 'exam-type-tabs',\\n    page: '/dashboard/students/past-exam-review',\\n    target: '.exam-container, .exam-tab-btn, .guide-exam-tabs',\\n    title: '題型分類標籤',\\n    content: '這裡是題目主要區塊。',\\n    buttonFunction: '',\\n    blockPurpose: '',\\n    position: 'bottom',\\n    avatarPosition: 'top-left',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'exam-timer',\\n    page: '/dashboard/students/past-exam-review',\\n    target: '.timer, .guide-timer',\\n    title: '答題計時器',\\n    content: '這裡是單題計時區塊，用來記錄你單題答題時間',\\n    buttonFunction: '',\\n    blockPurpose: '',\\n    position: 'top',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'exam-flag',\\n    page: '/dashboard/students/past-exam-review',\\n    target: '.flag-btn, .guide-flag-btn',\\n    title: '標記題目',\\n    content: '這裡可以先標記你確定答案或是之後想再回來重看的題目',\\n    buttonFunction: '',\\n    blockPurpose: '',\\n    position: 'bottom',\\n    avatarPosition: 'top-left',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'question-nav',\\n    page: '/dashboard/students/past-exam-review',\\n    target: '.question-nav-panel, .guide-question-nav',\\n    title: '題目導覽',\\n    content: '這裡題目導覽區域，你可以直接從這裡看到題目狀態，並直接切換題目',\\n    buttonFunction: '',\\n    blockPurpose: '',\\n    position: 'bottom',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'submit-exam-button',\\n    page: '/dashboard/students/past-exam-review',\\n    target: '.btn-success, button[type=\\\"submit\\\"], .guide-submit-btn',\\n    title: '提交答案',\\n    content: '完成作答後，點擊「提交答案」按鈕提交您的答案。',\\n    buttonFunction: '提交答案：完成考試並查看結果',\\n    blockPurpose: '提交考試答案並進入結果頁面',\\n    position: 'bottom',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1000,\\n    navigateTo: '/dashboard/quiz-result'\\n  },\\n  {\\n    id: 'quiz-result-overview',\\n    page: '/dashboard/quiz-result',\\n    target: '.quiz-result-container, .result-summary, .guide-result-overview',\\n    title: '測驗結果總覽',\\n    content: '這裡是測驗結果頁面，顯示您的答題統計、正確率和詳細分析。',\\n    buttonFunction: '查看整體表現和學習建議',\\n    blockPurpose: '提供完整的測驗結果分析和學習指導',\\n    position: 'top',\\n    avatarPosition: 'bottom-right',\\n    waitForElement: true,\\n    delay: 1500\\n  },\\n  {\\n    id: 'quiz-result-question-card',\\n    page: '/dashboard/quiz-result',\\n    target: '.question-card, .guide-question-card',\\n    title: '題目卡片',\\n    content: '這裡可以看到題目資訊、你當時的回答跟正確答案',\\n    buttonFunction: '請你點擊題目卡片',\\n    blockPurpose: '題目資料',\\n    position: 'bottom',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'quiz-result-filter',\\n    page: '/dashboard/quiz-result',\\n    target: '.card-header, .guide-result-filter',\\n    title: '題目篩選',\\n    content: '當題目很多時也別忘記利用題目篩選快速找出題目喔',\\n    buttonFunction: '請你點擊題目篩選',\\n    blockPurpose: '題目篩選',\\n    position: 'bottom',\\n    avatarPosition: 'bottom-right',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'quiz-result-ai-tutoring-button',\\n    page: '/dashboard/quiz-result',\\n    target: '.btn-primary, .btn-success, [class*=\\\"consolidate\\\"], [class*=\\\"ai-tutor\\\"], .guide-ai-tutor-btn',\\n    title: 'AI引導教學按鈕',\\n    content: '接下來請你點擊此按鈕開始鞏固你的錯誤題目跟標記題目，系統會帶你到 AI 教師引導教學解題版面。',\\n    buttonFunction: '點擊鞏固錯題按鈕進入 AI 教師引導教學',\\n    blockPurpose: '進入 AI 教師引導教學解題版面',\\n    position: 'bottom',\\n    avatarPosition: 'bottom-right',\\n    waitForElement: true,\\n    delay: 1200,\\n    navigateTo: '/dashboard/ai-tutoring'\\n  },\\n  {\\n    id: 'click-intelligent-learning-dropdown',\\n    page: '/dashboard/overview',\\n    target: '.guide-intelligent-dropdown, c-dropdown[variant=\\\"nav-item\\\"] a[cDropdownToggle], .nav-item:contains(\\\"智能學習系統\\\") a[cDropdownToggle]',\\n    title: '點擊智能學習系統下拉選單',\\n    content: '請點擊頂部選單的「智能學習系統」按鈕（藍色框框），這會展開智能學習功能的下拉選單。',\\n    buttonFunction: '點擊智能學習系統按鈕展開下拉選單',\\n    blockPurpose: '展開智能學習系統功能選單',\\n    position: 'bottom',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1000\\n  },\\n  {\\n    id: 'select-quiz-demo',\\n    page: '/dashboard/overview',\\n    target: '.guide-quiz-demo-option, .dropdown-item[href*=\\\"quiz-demo\\\"], a[routerLink*=\\\"quiz-demo\\\"]',\\n    title: '選擇測驗演示選項',\\n    content: '在展開的下拉選單中，請點擊「測驗演示」選項進入測驗演示功能。',\\n    buttonFunction: '點擊測驗演示選項',\\n    blockPurpose: '進入測驗演示功能',\\n    position: 'bottom',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1000\\n  },\\n  {\\n    id: 'quiz-demonstration-page',\\n    page: '/dashboard/quiz-demo',\\n    target: '.quiz-demonstration-content, .quiz-container, .guide-demo-content',\\n    title: '測驗演示頁面',\\n    content: '這是測驗演示頁面。點擊下方按鈕模擬提交測驗結果，體驗完整的學習系統流程。',\\n    buttonFunction: '點擊按鈕模擬提交測驗結果',\\n    blockPurpose: '展示測驗系統的模擬流程',\\n    position: 'top',\\n    avatarPosition: 'bottom-left',\\n    waitForElement: true,\\n    delay: 1500\\n  },\\n  {\\n    id: 'demo-submit-button',\\n    page: '/dashboard/quiz-demo',\\n    target: '.btn-primary, .btn-success, .guide-demo-submit',\\n    title: '提交測驗演示',\\n    content: '點擊此按鈕提交測驗演示，系統會生成隨機結果並跳轉到結果頁面。',\\n    buttonFunction: '提交測驗演示並查看結果',\\n    blockPurpose: '生成測驗結果並跳轉到結果頁面',\\n    position: 'bottom',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1000,\\n    navigateTo: '/dashboard/quiz-result/result_user_*'\\n  },\\n  {\\n    id: 'ai-tutoring-page',\\n    page: '/dashboard/ai-tutoring',\\n    target: '.main-content, .guide-ai-content',\\n    title: 'AI引導教學',\\n    content: '這裡是AI引導教學頁面，系統將會使用蘇格拉底式提問為你一一教學剛剛錯誤題目，幫助你更熟悉相關知識，並補充不足之處',\\n    buttonFunction: '',\\n    blockPurpose: '',\\n    position: 'bottom',\\n    avatarPosition: 'bottom-right',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'ai-tutoring-question-card',\\n    page: '/dashboard/ai-tutoring',\\n    target: '.card-body, .guide-ai-question',\\n    title: 'AI引導教學題目',\\n    content: '這裡是剛剛題目卡片',\\n    buttonFunction: '',\\n    blockPurpose: '',\\n    position: 'bottom',\\n    avatarPosition: 'bottom-right',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'ai-tutoring-chat-area',\\n    page: '/dashboard/ai-tutoring',\\n    target: '.chat-message, .guide-ai-chat',\\n    title: 'AI引導教學對話',\\n    content: '這裡是AI對話區域，你可以在這裡輸入你的問題和回答問題',\\n    buttonFunction: '',\\n    blockPurpose: '',\\n    position: 'bottom',\\n    avatarPosition: 'bottom-right',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'ai-tutoring-understand-button',\\n    page: '/dashboard/ai-tutoring',\\n    target: '.btn-outline-success, .guide-understand-btn',\\n    title: '我明白了',\\n    content: '當你弄懂題目後，點選此按鈕開始下一題教學',\\n    buttonFunction: '',\\n    blockPurpose: '',\\n    position: 'bottom',\\n    avatarPosition: 'bottom-right',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'ai-tutoring-note-button',\\n    page: '/dashboard/ai-tutoring',\\n    target: '.btn-outline-info, .guide-note-btn',\\n    title: '記筆記',\\n    content: '你點選此按鈕為題目增加你筆記，之後複習時更方便',\\n    buttonFunction: '',\\n    blockPurpose: '',\\n    position: 'bottom',\\n    avatarPosition: 'bottom-right',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'ai-tutoring-drawing-button',\\n    page: '/dashboard/ai-tutoring',\\n    target: '.btn-outline-secondary, .guide-drawing-btn',\\n    title: '繪圖板',\\n    content: '假如有需要繪圖地方你可以按此按鈕，他會給你一塗鴉板',\\n    buttonFunction: '',\\n    blockPurpose: '',\\n    position: 'bottom',\\n    avatarPosition: 'bottom-right',\\n    waitForElement: true,\\n    delay: 1200\\n  },\\n  {\\n    id: 'web-ai-assistant',\\n    page: '/dashboard/overview',\\n    target: '.web-ai-container, .floating-assistant, .web-ai-assistant, .floating-ai, .guide-web-ai',\\n    title: '智能網站助手',\\n    content: '右下角的智能網站助手提供網站導航、功能說明和使用指導。隨時可以點擊獲得幫助！導覽完成，祝您學習愉快！',\\n    buttonFunction: '點擊展開：開啟助手對話；網站導覽：重新觀看功能介紹；問題諮詢：詢問使用問題',\\n    blockPurpose: '提供網站使用指導、功能說明和導航協助，是您使用系統的得力助手',\\n    position: 'left',\\n    avatarPosition: 'top-right',\\n    waitForElement: true,\\n    delay: 1000\\n  }\\n];\\n\\nreturn {\\n  userInfo,\\n  steps,\\n  totalSteps: steps.length,\\n  message: '精細化修正的 MIS 教學系統導覽步驟 - 拆分操作步驟並修正測驗演示流程',\\n  processedAt: new Date().toISOString()\\n};"
+      },
+      "id": "process-request",
+      "name": "Process Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const processedData = $input.all()[0].json;\\n\\nconst response = {\\n  success: true,\\n  user_id: processedData.userInfo.user_id,\\n  current_page: processedData.userInfo.current_page,\\n  message: processedData.message,\\n  steps: processedData.steps,\\n  guide_type: 'detailed_step_by_step_guide',\\n  total_steps: processedData.totalSteps,\\n  timestamp: processedData.processedAt,\\n  webhook_received_at: new Date().toISOString(),\\n  features: [\\n    '精細化操作步驟',\\n    '拆分下拉選單操作',\\n    '修正測驗演示流程',\\n    '優化元素定位',\\n    '移除 Unicode 問題',\\n    '完整 AI 教師流程',\\n    '隨機結果頁面支援'\\n  ]\\n};\\n\\n$responseHeaders = {\\n  'Content-Type': 'application/json',\\n  'Access-Control-Allow-Origin': '*',\\n  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',\\n  'Access-Control-Allow-Headers': 'Content-Type, Authorization'\\n};\\n\\nreturn response;"
+      },
+      "id": "generate-response",
+      "name": "Generate Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}"
+      },
+      "id": "respond-to-webhook",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Request": {
+      "main": [
+        [
+          {
+            "node": "Generate Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "detailed-fixed-version",
+  "id": "mis-guide-detailed-fixed",
+  "meta": {
+    "instanceId": "local"
+  },
+  "tags": []
+}
