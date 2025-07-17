@@ -27,3 +27,5 @@ coverage/
 tmp/
 rag_system/data/outputs/
 rag_system/data/pdfs/
+picture/
+src/picture/
