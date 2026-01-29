@@ -3,6 +3,12 @@
 ## 📚 專案簡介
 
 MIS_Teach 是一個整合 AI 技術的智慧學習平台，專為資訊管理相關學科設計。系統結合了前端 Web 應用、後端 API 服務、YOLO 圖像識別、OCR 文字識別等多個子系統，提供完整的學習、測驗、分析、教學功能。
+此專案利用子模組搭配CICD持續追蹤下列功能專案，達成分層化管裡追蹤
+
+### 額外附件
+ - **114畢專期末報告.pdf**: 說明專案設計技術流程等等
+ -**學無止盡-小論文發表-PPT.pdf**: 簡報檔案
+ -**完整簡報動畫檔案請至**: https://www.canva.com/design/DAG2Cv9vnLk/PCclZtiCsRVP1jCfL5WRfg/edit?utm_content=DAG2Cv9vnLk&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
 
 ### 核心特色
 
